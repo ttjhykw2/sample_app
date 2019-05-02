@@ -1,13 +1,9 @@
 <% provide(:title, 'Sign up') %>
-<% provide(:button_text, 'Create my account') %>
-<% options = {url: signup_path} %>
 <h1>Sign up</h1>
 
 <div class="row">
  <div class="col-md-6 col-md-offset-3">
-
-
-  <%= form_for(@user, options) do |f| %>
+  <%= form_for(@user, url: signup_path) do |f| %>
    <%= render 'shared/error_messages' %>
 
    <%= f.label :name %>
@@ -22,9 +18,7 @@
    <%= f.label :password_confirmation, "Confirmation" %>
    <%= f.password_field :password_confirmation, class: 'form-cotrol' %>
 
-   <%= f.submit yield(:button_text), class: "btn btn-primary" %>
+   <%= f.submit "Create my acount", class: "btn btn-primary" %>
   <% end %>
-
-
  </div>
 </div>
