@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   attr_accessor :remember_token, :activation_token, :reset_token
+  has_many :microposts, dependent: :destroy
 
   # before_save { self.email = email.downcase }
   # before_save { email.downcase! }
@@ -82,6 +83,12 @@ class User < ApplicationRecord
   # パスワード再設定の期限が切れている場合はtrueを返す
   def password_reset_expired?
     reset_sent_at < 2.hours.ago
+  end
+
+  # 試作feedの定義
+  # 完全な実装はまだ
+  def feed
+    Micropost.where("user_id = ?", id)
   end
 
   private
