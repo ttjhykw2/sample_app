@@ -12,6 +12,9 @@ class SessionsController < ApplicationController
       log_in @user
       params[:session][:remember_me] == '1' ? remember(@user) : forget(@user)
       redirect_back_or @user
+      # ログイン直後に、micropostを作成できる画面を表示。最終的にはこちらの方が良い
+      # が、それまでのテストがパスしなくなる
+      # redirect_to root_path
       else
         message = "Account not activated."
         message += "Check your email for the activation link."
