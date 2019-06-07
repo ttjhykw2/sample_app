@@ -1,0 +1,15 @@
+
+ユーザ名
+PrisonerNo1
+
+アクセスキーID
+AKIA3JTNUZGAIKD74RYO
+
+Secret access key
+H96dq5JlDfJTQjr82dgwDyRUUiK/QUjWNzmHwbnO
+
+bucket名
+railssample
+
+東京リージョン
+ap-northeast-1

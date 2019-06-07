@@ -39,3 +39,5 @@ doc/
 .idea
 .secret
 
+# uploaded test file
+/public/uploads
