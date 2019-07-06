@@ -8,76 +8,92 @@ RSpec.describe User, type: :model do
         password: "foobar", password_confirmation: "foobar")
   end
 
-  it "should be valid" do
-    assert @user.valid?
+  subject { @user }
+
+  it { should respond_to(:name)}
+  it { should respond_to(:email)}
+  it { should respond_to(:password_digest)}
+  it { should respond_to(:password)}
+  it { should respond_to(:password_confirmation)}
+
+  it { should be_valid }
+
+  describe "when name is not present" do
+    before { @user.name = "" }
+    it { should_not be_valid }
   end
 
-
-  it "s name should be present" do
-    @user.name = "   "
-    assert_not @user.valid?
+  describe "when email is not present" do
+    before { @user.email = "" }
+    it { should_not be_valid }
   end
 
-  it "s email should be present" do
-    @user.email = "   "
-    assert_not @user.valid?
+  describe "when name is too long" do
+    before { @user.name = "a" * 51 }
+    it { should_not be_valid }
   end
 
-  it "s name should not be too long" do
-    @user.name = "a" * 51
-    assert_not @user.valid?
+  describe "when email is too long" do
+    before { @user.email = "a" * 244 + "@exmaple.com" }
+    it { should_not be_valid }
   end
 
-  it "s email should not be too long" do
-    @user.email = "a" * 244 + "@exmaple.com"
-    assert_not @user.valid?
-  end
-
-  it "s email validation should accept valid addresses" do
-    valid_addresses = %w[user@example.com USER@foo.COM A_US-ER@foo.bar.org
-                  first.last@foo.jp alice+bob@baz.cn]
-    valid_addresses.each do |valid_address|
-      @user.email = valid_address
-      assert @user.valid?, "#{valid_address.inspect} should be valid"
+  describe "when email format is valid" do
+    it "should be valid" do
+      valid_addresses = %w[user@example.com USER@foo.COM A_US-ER@foo.bar.org
+                    first.last@foo.jp alice+bob@baz.cn]
+      valid_addresses.each do |valid_address|
+        @user.email = valid_address
+        expect(@user).to be_valid
+      end
     end
   end
 
-  it "s email validation should reject invalid addresses" do
-    invalid_addresses = %w[user@example,com user_at_foo.org user.name@example.
+  describe "when email format is invalid" do
+    it "should be invalid" do
+      invalid_addresses = %w[user@example,com user_at_foo.org user.name@example.
                   foo@bar_baz.com foo@bar+baz.cn foo@bar..com]
-    invalid_addresses.each do |invalid_address|
-      @user.email = invalid_address
-      assert_not @user.valid?, "#{invalid_address.inspect} should be invalid"
+      invalid_addresses.each do |invalid_address|
+        @user.email = invalid_address
+        expect(@user).not_to be_valid
+      end
     end
   end
 
-  it "s email addresses should be unique" do
-    duplicate_user = @user.dup
-    duplicate_user.email = @user.email.upcase
-    @user.save
-    assert_not duplicate_user.valid?
+  describe "when email address is already taken" do
+    before do
+      user_with_same_email = @user.dup
+      user_with_same_email.email = @user.email.upcase
+      user_with_same_email.save
+    end
+    it { should_not be_valid}
   end
 
-  it "s email addresses should be saved as lower-case" do
-    mixed_case_email = "Foo@ExAMPle.CoM"
-    @user.email = mixed_case_email
-    @user.save
-    assert_equal mixed_case_email.downcase, @user.reload.email
+  describe "when email address contains upper-case" do
+    let(:mixed_case_email) { "Foo@ExAMPle.CoM" }
+
+    before do
+      @user.email = mixed_case_email
+      @user.save
+    end
+    it { expect(@user.reload.email).to eq  mixed_case_email.downcase }
   end
 
-  it "s password should be present(nonblank)" do
-    @user.password = @user.password_confirmation = " " * 6
-    assert_not @user.valid?
+  describe "when password is not present(blank)" do
+    before { @user.password = @user.password_confirmation = " " * 6 }
+    it { should_not be_valid }
   end
 
-  it "s password should have a minimum length" do
-    @user.password = @user.password_confirmation = "a" * 5
-    assert_not @user.valid?
+  describe "when password does not have a minimum length" do
+    before { @user.password = @user.password_confirmation = "a" * 5 }
+    it { should_not be_valid }
   end
 
-  it "s authenticated? should return false for a user with nil digest" do
-    assert_not @user.authenticated?(:remember, '')
+  describe "when a user has nil digest" do
+    it { expect(@user.authenticated?(:remember, '')).to eq(false) }
   end
+
+=begin
 
   it "s associated microposts should be destroyed" do
     @user.save
@@ -116,7 +132,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-=begin
   it 'should be valid' do # 期待する動作説明を書く
     user = User.new(name: '')
     expect(user).not_to be_valid # 動作をテストする部分
