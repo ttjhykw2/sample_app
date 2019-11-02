@@ -9,13 +9,6 @@ RSpec.describe User, type: :model do
   end
 
   subject { @user }
-
-  it { should respond_to(:name)}
-  it { should respond_to(:email)}
-  it { should respond_to(:password_digest)}
-  it { should respond_to(:password)}
-  it { should respond_to(:password_confirmation)}
-
   it { should be_valid }
 
   describe "when name is not present" do
@@ -60,7 +53,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "when email address is already taken" do
+  describe "email addresses should be unique" do
     before do
       user_with_same_email = @user.dup
       user_with_same_email.email = @user.email.upcase
@@ -69,7 +62,7 @@ RSpec.describe User, type: :model do
     it { should_not be_valid}
   end
 
-  describe "when email address contains upper-case" do
+  describe "email addresses should be saved as lower-case" do
     let(:mixed_case_email) { "Foo@ExAMPle.CoM" }
 
     before do
@@ -89,52 +82,53 @@ RSpec.describe User, type: :model do
     it { should_not be_valid }
   end
 
-  describe "when a user has nil digest" do
+  describe "authenticated? should return false for a user with nil digest" do
     it { expect(@user.authenticated?(:remember, '')).to eq(false) }
   end
 
-=begin
-
-  it "s associated microposts should be destroyed" do
-    @user.save
-    @user.microposts.create!(content: "Lorem ipsum")
-    assert_difference 'Micropost.count', -1 do
-      @user.destroy
+  describe "associated microposts should be destroyed" do
+    before do
+      @user.save
+      @user.microposts.create!(content: "Lorem ipsum")
     end
+    it { expect {@user.destroy}.to change(Micropost, :count).by(-1) }
+  end
+end
+
+RSpec.describe "follow and micropost", type: :request do
+  it "follow and unfollow a user" do
+    @michael = FactoryBot.create(:michael)
+    @archer = FactoryBot.create(:archer)
+
+    expect(@michael.following?(@archer)).to be_falsey
+    @michael.follow(@archer)
+    expect(@michael.following?(@archer)).to be_truthy
+    expect(@archer.followers.include?(@michael)).to be_truthy
+    @michael.unfollow(@archer)
+    expect(@michael.following?(@archer)).to be_falsey
   end
 
-  it "should follow and unfollow a user" do
-    michael = users(:michael)
-    archer = users(:archer)
-    assert_not michael.following?(archer)
-    michael.follow(archer)
-    assert michael.following?(archer)
-    assert archer.followers.include?(michael)
-    michael.unfollow(archer)
-    assert_not michael.following?(archer)
-  end
+  it "feed should have the right posts" do
+    @michael = FactoryBot.create(:michael)
+    @archer = FactoryBot.create(:archer)
+    @lana = FactoryBot.create(:lana)
 
-  it "s feed should have the right posts" do
-    michael = users(:michael)
-    archer = users(:archer)
-    lana = users(:lana)
     # フォローしているユーザの投稿を確認
-    lana.microposts.each do |post_following|
-      assert michael.feed.include?(post_following)
+    @lana.microposts.each do |post_following|
+      expect(@michael.feed.include?(post_following)).to be_truthy
     end
     # 自分自身の投稿を確認
-    michael.microposts.each do |post_self|
-      assert michael.feed.include?(post_self)
+    @michael.microposts.each do |post_self|
+      expect(@michael.feed.include?(post_self)).to be_truthy
     end
     # フォローしていないユーザの投稿を確認
-    archer.microposts.each do |post_unfollowed|
-      assert_not michael.feed.include?(post_unfollowed)
+    @archer.microposts.each do |post_unfollowed|
+      expect(@michael.feed.include?(post_unfollowed)).to be_falsey
     end
   end
 
-  it 'should be valid' do # 期待する動作説明を書く
-    user = User.new(name: '')
-    expect(user).not_to be_valid # 動作をテストする部分
-  end
-=end
+  # it 'should be valid' do # 期待する動作説明を書く
+  #   user = User.new(name: '')
+  #   expect(user).not_to be_valid # 動作をテストする部分
+  # end
 end
