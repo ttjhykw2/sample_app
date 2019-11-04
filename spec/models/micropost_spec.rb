@@ -10,23 +10,23 @@ RSpec.describe Micropost, type: :model do
   it { expect(@micropost).to be_valid }
 
   describe "user id should be present" do
-    before { @micropost.user_id = nil }
-    it { expect(@micropost).not_to be_valid }
+    it {@micropost.user_id = nil
+      expect(@micropost).not_to be_valid }
   end
 
   describe "content should be present" do
-    before { @micropost.content = " " }
-    it { expect(@micropost).not_to be_valid }
+    it { @micropost.content = " "
+      expect(@micropost).not_to be_valid }
   end
 
   describe "content should be at most 140 characters" do
-    before { @micropost.content = "a" * 141 }
-    it { expect(@micropost).not_to be_valid }
+    it { @micropost.content = "a" * 141
+      expect(@micropost).not_to be_valid }
   end
 
-  specify "order should be most recent first" do
-    content = FactoryBot.attributes_for(:most_recent)[:content]
-    most_recent = Micropost.find_by! content: content
-    expect(Micropost.first).to eq most_recent
+  describe "order should be most recent first" do
+    it { content = FactoryBot.attributes_for(:most_recent)[:content]
+      most_recent = Micropost.find_by! content: content
+      expect(Micropost.first).to eq most_recent }
   end
 end
