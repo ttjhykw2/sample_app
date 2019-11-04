@@ -8,8 +8,7 @@ RSpec.describe User, type: :model do
         password: "foobar", password_confirmation: "foobar")
   end
 
-  subject { @user }
-  it { should be_valid }
+  it { expect(@user).to be_valid }
 
   describe "when name is not present" do
     before { @user.name = "" }
@@ -97,38 +96,33 @@ end
 
 RSpec.describe "follow and micropost", type: :request do
   it "follow and unfollow a user" do
-    @michael = FactoryBot.create(:michael)
-    @archer = FactoryBot.create(:archer)
+    michael = FactoryBot.create(:michael)
+    archer = FactoryBot.create(:archer)
 
-    expect(@michael.following?(@archer)).to be_falsey
-    @michael.follow(@archer)
-    expect(@michael.following?(@archer)).to be_truthy
-    expect(@archer.followers.include?(@michael)).to be_truthy
-    @michael.unfollow(@archer)
-    expect(@michael.following?(@archer)).to be_falsey
+    expect(michael.following?(archer)).to be_falsey
+    michael.follow(archer)
+    expect(michael.following?(archer)).to be_truthy
+    expect(archer.followers.include?(michael)).to be_truthy
+    michael.unfollow(archer)
+    expect(michael.following?(archer)).to be_falsey
   end
 
   it "feed should have the right posts" do
-    @michael = FactoryBot.create(:michael)
-    @archer = FactoryBot.create(:archer)
-    @lana = FactoryBot.create(:lana)
+    michael = FactoryBot.build(:michael)
+    archer = FactoryBot.build(:archer)
+    lana = FactoryBot.build(:lana)
 
     # フォローしているユーザの投稿を確認
-    @lana.microposts.each do |post_following|
-      expect(@michael.feed.include?(post_following)).to be_truthy
+    lana.microposts.each do |post_following|
+      expect(michael.feed.include?(post_following)).to be_truthy
     end
     # 自分自身の投稿を確認
-    @michael.microposts.each do |post_self|
-      expect(@michael.feed.include?(post_self)).to be_truthy
+    michael.microposts.each do |post_self|
+      expect(michael.feed.include?(post_self)).to be_truthy
     end
     # フォローしていないユーザの投稿を確認
-    @archer.microposts.each do |post_unfollowed|
-      expect(@michael.feed.include?(post_unfollowed)).to be_falsey
+    archer.microposts.each do |post_unfollowed|
+      expect(michael.feed.include?(post_unfollowed)).to be_falsey
     end
   end
-
-  # it 'should be valid' do # 期待する動作説明を書く
-  #   user = User.new(name: '')
-  #   expect(user).not_to be_valid # 動作をテストする部分
-  # end
 end
