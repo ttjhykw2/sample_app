@@ -92,10 +92,8 @@ RSpec.describe User, type: :model do
     end
     it { expect {@user.destroy}.to change(Micropost, :count).by(-1) }
   end
-end
 
-RSpec.describe "follow and micropost", type: :request do
-  it "follow and unfollow a user" do
+  it "should follow and unfollow a user" do
     michael = FactoryBot.create(:michael)
     archer = FactoryBot.create(:archer)
 
