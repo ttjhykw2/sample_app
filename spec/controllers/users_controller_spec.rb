@@ -14,68 +14,65 @@ RSpec.describe UsersController, type: :controller do
     #get signup_path
     expect(response).to have_http_status :success
   end
-=begin
+
   it "should redirect edit when not logged in" do
-    get edit_user_path(@user)
-    assert_not flash.empty?
-    assert_redirected_to login_url
+    get :edit, params: {id: user}
+    expect(flash).to be_present
+    expect(response).to redirect_to login_url
   end
 
   it "should redirect update when not logged in" do
-    patch user_path(@user), params: { user: { name: @user.name,
-                                              email: @user.email }}
-    assert_not flash.empty?
-    assert_redirected_to login_url
+    patch :update, params: { id: user, user: { name: user.name, email: user.email } }
+    expect(flash).to be_present
+    expect(response).to redirect_to login_url
   end
 
   it "should redirect edit when logged in as wrong user" do
-    log_in_as(@other_user)
-    get edit_user_path(@user)
-    assert flash.empty?
-    assert_redirected_to root_url
+    log_in_as(other_user)
+    get :edit, params: {id: user}
+    expect(flash).to be_empty
+    expect(response).to redirect_to root_url
   end
 
   it "should redirect update when logged in as wrong user" do
-    log_in_as(@other_user)
-    patch user_path(@user), params: { user: { name: @user.name,
-                                              email: @user.email }}
-    assert flash.empty?
-    assert_redirected_to root_url
+    log_in_as(other_user)
+    patch :update, params: { id: user, user: { name: user.name,
+                                              email: user.email }}
+    expect(flash).to be_empty
+    expect(response).to redirect_to root_url
   end
 
   it "should not allow the admin attribute to be edited via the web" do
-    log_in_as(@other_user)
-    assert_not @other_user.admin?
-    patch user_path(@other_user), params: {
-      user: { password: 'password',
+    log_in_as(other_user)
+    expect(other_user.admin?). to be_falsey
+    patch :update, params: { id: other_user,
+              user: { password: 'password',
               password_confirmation: 'password',
               admin: true }}
-    assert_not @other_user.reload.admin?
+    expect(other_user.reload.admin?).to be_falsey
   end
 
   it "should redirect destroy when not logged in" do
-    assert_no_difference 'User.count' do
-      delete user_path(@user)
-    end
-    assert_redirected_to login_url
+    #assert_no_difference 'User.count' do
+    #  delete user_path(@user)
+    #end
+    expect { delete :destroy, params: {id: user}}.to_not change(User, :count)
+    expect(response).to redirect_to login_url
   end
 
   it "should redirect destroy when logged in as a non-admin" do
-    log_in_as(@other_user)
-    assert_no_difference 'User.count' do
-      delete user_path(@user)
-    end
-    assert_redirected_to root_url
+    log_in_as(other_user)
+    expect { delete :destroy, params: {id: user}}.to_not change(User, :count)
+    expect(response).to redirect_to root_url
   end
 
   it "should redirect following when not logged in" do
-    get following_user_path(@user)
-    assert_redirected_to login_url
+    get :following, params: {id: user}
+    expect(response).to redirect_to login_url
   end
 
   it "should redirect followers when not logged in" do
-    get followers_user_path(@user)
-    assert_redirected_to login_url
+    get :followers, params: {id: user}
+    expect(response).to redirect_to login_url
   end
-=end
 end
