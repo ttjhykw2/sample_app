@@ -51,7 +51,7 @@ module SessionsHelper
 
   # ユーザがログインしていればtrue、その他ならfalseを返す
   def logged_in?
-    !current_user.nil? 
+    !current_user.nil?
   end
 
   # 永続的セッションを破棄する
